@@ -17,11 +17,11 @@ class TableRow:
         self._on_large_balance_drop = []
 
     def on_large_balance_drop(self, callback):
-        """Регистрирует триггер для значительного снижения баланса."""
+        """Registers a trigger for a significant decrease in balance."""
         self._on_large_balance_drop.append(callback)
 
     def check_balance_change(self, previous_balance):
-        """Проверяет изменение баланса относительно предыдущего состояния."""
+        """Checks the balance change relative to the previous state."""
         if previous_balance is not None:
             delta = previous_balance - self.balance
             if delta > 1000:  # Условие триггера
@@ -41,12 +41,12 @@ class TableMonitor:
         """Trigger for all rows"""
         self._on_row_change.append(callback)
 
-    def load_data(self, start_date: str, end_date: str, ogrn: str):
+    def load_data(self, start_date: str, end_date: str, name: str):
         """load data from Postgres on specific period"""
         query = f"""
         SELECT * 
         FROM {self.schema_name}.{self.table_name}
-        WHERE date_ BETWEEN '{start_date}' AND '{end_date}' AND name_ = '{ogrn}'
+        WHERE date_ BETWEEN '{start_date}' AND '{end_date}' AND name_ = '{name}'
         """
         return pd.read_sql(query, self.engine)
 
@@ -76,9 +76,9 @@ class TableMonitor:
         print(f"[Trigger]: User {row.name} (ID={row._id}) "
               f"balance decrease from  {previous_balance} to {current_balance}.")
 
-    def monitor(self, start_date: str, end_date: str, ogrn: str):
+    def monitor(self, start_date: str, end_date: str, name: str):
         """Load data"""
-        current_data = self.load_data(start_date, end_date, ogrn)
+        current_data = self.load_data(start_date, end_date, name)
         print(current_data)
         self.process_changes(current_data)
 
